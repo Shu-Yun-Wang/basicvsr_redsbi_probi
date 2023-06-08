@@ -1,0 +1,43 @@
+name: BasicVSR_REDS
+model_type: VideoRecurrentModel
+scale: 4
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: REDS4
+    type: VideoRecurrentTestDataset
+    dataroot_gt: datasets/reds4/GT
+    dataroot_lq: datasets/reds4/BIx4
+    cache_data: True
+    io_backend:
+      type: disk
+    num_frame: -1  # not needed
+
+# network structures
+network_g:
+  type: BasicVSR
+  num_feat: 64
+  num_block: 30
+  flow_type: mv
+
+# path
+path:
+  pretrain_network_g: pretrained_models/BasicVSR/basicvsr_nospynet.pytorch
+  strict_load_g: true
+
+# validation settings
+val:
+  save_img: true
+  suffix: ~  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
