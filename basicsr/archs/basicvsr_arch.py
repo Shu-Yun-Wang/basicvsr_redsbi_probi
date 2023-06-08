@@ -23,7 +23,8 @@ class BasicVSR(nn.Module):
         self.num_feat = num_feat
         # alignment
         self.flow_type = flow_type 
-        self.spynet_path = spynet_path              
+        if self.flow_type == 'of':
+            self.spynet = SpyNet(spynet_path)             
 
         # propagation
         self.backward_trunk = ConvResidualBlocks(num_feat + 3, num_feat, num_block)
@@ -83,14 +84,10 @@ class BasicVSR(nn.Module):
 
         ## 正常光流
         if self.flow_type == 'of':
-            state_dict = torch.load(self.spynet_path)
-            spynet = SpyNet().cuda()
-            spynet.load_state_dict(state_dict)
-            spynet.eval()
             x_1 = x[:, :-1, :, :, :].reshape(-1, c, h, w)
             x_2 = x[:, 1:, :, :, :].reshape(-1, c, h, w)
-            flows_backward = spynet(x_1, x_2).view(b, n - 1, 2, h, w)
-            flows_forward = spynet(x_2, x_1).view(b, n - 1, 2, h, w)
+            flows_backward = self.spynet(x_1, x_2).view(b, n - 1, 2, h, w)
+            flows_forward = self.spynet(x_2, x_1).view(b, n - 1, 2, h, w)
 
         ## 光流为0
         elif self.flow_type == 'zero':
