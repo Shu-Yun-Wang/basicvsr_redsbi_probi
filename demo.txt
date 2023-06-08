@@ -3,4 +3,4 @@ git clone https://github.com/Shu-Yun-Wang/basicvsr_redsbi_probi.git
 cd /mnt/nfs-pvc-user/wangsy/basicvsr_redsbi_probi
 pip install -r requirements.txt
 python setup.py develop
-python basicsr/train.py
+python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py
